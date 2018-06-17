@@ -1,0 +1,35 @@
+version: '3.6'
+
+services:
+  front:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - 3000:80
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+
+  postgrest:
+    image: postgrest/postgrest
+    restart: unless-stopped
+    environment:
+      - PGRST_DB_ANON_ROLE=postgres
+      - PGRST_DB_URI=postgres://postgres@db/db
+
+  martin:
+    image: urbica/martin
+    restart: unless-stopped
+    environment:
+      - RUST_LOG=actix_web=info,postgres=debug,martin=debug
+      - DATABASE_URL=postgres://postgres@db/db
+
+  db:
+    image: urbica/postgis:debian
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=db
+      - POSTGRES_USER=postgres
+    volumes:
+      - ./db:/var/lib/postgresql/data
+      - ./table-points.sql:/docker-entrypoint-initdb.d/table-points.sql
