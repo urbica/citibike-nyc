@@ -2,15 +2,17 @@
 <html>
 
 <head>
-  <title>Mapbox GL JS</title>
+  <title>Citi Bike NYC</title>
   <meta charset='utf-8'>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <script src="http://cdn.date-fns.org/v1.9.0/date_fns.min.js"></script>
   <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.46.0-beta.1/mapbox-gl.js'></script>
   <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.46.0-beta.1/mapbox-gl.css' rel='stylesheet' />
   <style>
     body {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
     html,
@@ -18,59 +20,121 @@
     #map {
       height: 100%;
     }
+
+    .slider-container {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      justify-content: space-between;
+      margin: auto;
+      width: 500px;
+      padding: 10px;
+      background: white;
+      text-align: center;
+    }
+
+    #slider {
+      width: 310px;
+    }
   </style>
 </head>
 
 <body>
   <div id='map'></div>
+  <div class="slider-container">
+    <input type="date" id="dateSelector" value="2018-05-06">
+    <input type="range" min="1" max="24" value="20" step="1" id="timeSelector">
+    <span id="timeValue">20:00</span>
+  </div>
+
   <script>
-    var map = window.map = new mapboxgl.Map({
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic3RlcGFua3V6bWluIiwiYSI6Ik1ieW5udm8ifQ.25EOEC2-N92NCWT0Ci9w-Q';
+    const map = window.map = new mapboxgl.Map({
       container: 'map',
-      zoom: 2.5,
-      center: [0, 0],
-      style: 'mapbox://styles/mapbox/light-v9',
+      zoom: 12,
+      center: [-74, 40.73],
+      style: 'mapbox://styles/mapbox/dark-v9',
       hash: true
     });
 
-    map.showTileBoundaries = true;
+    let stationsGeoJSON;
+    const setData = () => {
+      const date = dateFns.parse(dateSelector.value, 'YYYY-MM-DD');
+      const hour = timeSelector.value;
+      const ts = dateFns.format(dateFns.setHours(date, hour), 'YYYY-MM-DD HH:mm:ss');
 
-    map.on('load', function () {
-      map.addSource('places', {
-        type: "geojson",
-        data: "/test/integration/data/places.geojson"
-      });
-      map.addLayer({
-        id: "places",
-        source: "places",
-        type: "circle",
-        paint: {
-          "circle-radius": ["case",
-            ["boolean", ["feature-state", "hover"], false],
-            ["number", ["*", ["get", "scalerank"], 2]],
-            ["number", ["*", ["get", "scalerank"], 1.5]]
-          ],
-          "circle-color": ["case",
-            ["boolean", ["feature-state", "hover"], false],
-            ["rgb", 21, 210, 210],
-            ["rgb", 233, 103, 233]
-          ]
-        }
-      });
-      let hoveredFeature;
-      map.on('mousemove', 'places', function (e) {
-        if (e.features.length) {
-          const f = e.features[0];
-          if (!f.state.hover) {
-            map.setFeatureState(f, { 'hover': true });
-            if (hoveredFeature) {
-              map.setFeatureState(hoveredFeature, { 'hover': false });
+      console.time(ts);
+      fetch(`/api/trips_count?ts=eq.${encodeURI(ts)}`)
+        .then(r => r.json())
+        .then(data => data.reduce((acc, d) => ({ [d.station_id]: d, ...acc })))
+        .then((data) => {
+          stationsGeoJSON.features.forEach(({ id }) => {
+            const datum = data[id];
+            if (!datum) {
+              map.setFeatureState({ id, source: 'stations' }, {});
+            } else {
+              map.setFeatureState({ id, source: 'stations' }, { trips_count: datum.trips_count });
             }
-            hoveredFeature = f;
-          }
-        }
-      });
+          });
+          console.timeEnd(ts);
+        });
+    }
+
+    const dateSelector = document.getElementById("dateSelector");
+    dateSelector.addEventListener("input", setData);
+
+    const timeSelector = document.getElementById("timeSelector");
+    const timeValue = document.getElementById("timeValue");
+
+    timeSelector.addEventListener("input", (e) => {
+      timeValue.innerHTML = `${e.target.value}:00`;
+      setData();
     });
 
+    map.on('load', () => {
+      map.on('click', (e) => {
+        const bbox = [[e.point.x - 5, e.point.y - 5], [e.point.x + 5, e.point.y + 5]];
+        const features = map.queryRenderedFeatures(bbox, { layers: ['stations'] });
+        console.log(features);
+      });
+
+      fetch('https://layer.bicyclesharing.net/map/v1/nyc/stations').then(r => r.json()).then((stations) => {
+        stations.features.forEach((station) => {
+          station.id = station.properties.station_id;
+        });
+
+        stationsGeoJSON = stations;
+
+        map.addLayer({
+          "id": "stations",
+          "type": "circle",
+          "source": {
+            "type": "geojson",
+            "data": stations
+          },
+          "paint": {
+            'circle-opacity': 0.8,
+            "circle-color": [
+              "step",
+              ["feature-state", "trips_count"],
+              "#fff5db", 5,
+              "#e1addc", 20,
+              "#c238b5", 70,
+              "#810075"
+            ],
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              9, 1.5,
+              17, 12
+            ]
+          }
+        });
+
+        setData();
+      });
+    });
   </script>
 </body>
 

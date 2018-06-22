@@ -14,13 +14,8 @@ services:
     image: postgrest/postgrest
     restart: unless-stopped
     environment:
+      - PGRST_DB_ANON_ROLE=postgres
       - PGRST_DB_URI=postgres://postgres@db/db
-
-  martin:
-    image: urbica/martin
-    restart: unless-stopped
-    environment:
-      - DATABASE_URL=postgres://postgres@db/db
 
   db:
     image: timescale/timescaledb-postgis:latest-pg10
@@ -31,4 +26,5 @@ services:
     volumes:
       - ./data:/data
       - ./db:/var/lib/postgresql/data
-      - ./postgis.sql:/docker-entrypoint-initdb.d/postgis.sql
+      - ./aggregate_trips.sql:/aggregate_trips.sql
+      - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql

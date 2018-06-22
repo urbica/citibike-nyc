@@ -20,16 +20,27 @@ cd mapbox-gl-js-feature-state
 docker-compose up -d db
 ```
 
-## Step 3. Get stations
+## Step 3. Get trip data
 
-Get latest NYC stations
-
-```shell
-curl https://layer.bicyclesharing.net/map/v1/nyc/stations -o ./data/stations.geojson
-```
-
-Upload stations into database
+Get Citi Bike trip data
 
 ```shell
-docker-compose exec db ogr2ogr -f "PostgreSQL" PG:"dbname=db user=postgres" /data/stations.geojson -nln stations
+curl https://s3.amazonaws.com/tripdata/201805-citibike-tripdata.csv.zip -o ./data/tripdata.zip
+unzip ./data/tripdata.zip -d ./data
 ```
+
+Upload trips into database
+
+```shell
+docker-compose exec db psql -d db -U postgres -c "copy trips from '/data/201805-citibike-tripdata.csv' delimiter ',' csv header"
+```
+
+...and aggregate them by hour
+
+```shell
+docker-compose exec db psql -d db -U postgres -f /aggregate_trips.sql
+```
+
+## Step 4. Review your data
+
+Open [http://localhost:3000](http://localhost:3000/)
