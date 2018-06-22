@@ -1,6 +1,8 @@
-# Mapbox GL JS feature state
+# Citi Bike NYC
 
 Mapbox GL JS feature state usage example.
+
+![Screenshot](https://raw.githubusercontent.com/stepankuzmin/mapbox-gl-js-feature-state/master/screenshot.png)
 
 ## Prerequisites
 
@@ -14,10 +16,10 @@ git clone https://github.com/stepankuzmin/mapbox-gl-js-feature-state.git
 cd mapbox-gl-js-feature-state
 ```
 
-## Step 2. Start database service
+## Step 2. Start services
 
 ```shell
-docker-compose up -d db
+docker-compose up -d
 ```
 
 ## Step 3. Get trip data
