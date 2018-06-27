@@ -107,30 +107,87 @@
 
         stationsGeoJSON = stations;
 
+        map.addSource('stations', {
+          "type": "geojson",
+          "data": stations
+        });
+
         map.addLayer({
-          "id": "stations",
+          "id": "stations1",
           "type": "circle",
-          "source": {
-            "type": "geojson",
-            "data": stations
-          },
+          "source": 'stations',
           "paint": {
-            'circle-opacity': 0.8,
+            'circle-opacity': 0.5,
+            // "circle-color": "#2600FF",
             "circle-color": [
               "step",
               ["feature-state", "trips_count"],
-              "#fff5db", 5,
-              "#e1addc", 20,
-              "#c238b5", 70,
-              "#810075"
+              "#26EDF8", 3,
+              "#5EFF96", 8,
+              "#F0FF3D", 15,
+              "#FB269F", 20,
+              "#9323AB"
+            ],
+            "circle-blur":[
+              "interpolate", ["linear"], ["zoom"],
+              9, 0.5,
+              13, 1.35,
+              22, 0
             ],
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              9, 1.5,
-              17, 12
+              9, 5.5,
+              22, 15
             ]
+            // "circle-stroke-color": "#fff",
+            // "circle-stroke-width": [
+            //   "interpolate", ["linear"], ["zoom"],
+            //   9, 2,
+            //   17, 10
+            // ],
+            // "circle-stroke-opacity": 0.15
           }
         });
+
+
+
+        map.addLayer({
+          "id": "stations",
+          "type": "circle",
+          "source": 'stations',
+          "paint": {
+            'circle-opacity': 1,
+            "circle-color": [
+              "step",
+              ["feature-state", "trips_count"],
+              "#26EDF8", 3,
+              "#5EFF96", 8,
+              "#F0FF3D", 15,
+              "#FB269F", 20,
+              "#9323AB"
+            ],
+            // "circle-blur":[
+            //   "interpolate", ["linear"], ["zoom"],
+            //   9, 0.5,
+            //   13, 1.5,
+            //   22, 0
+            // ],
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              9, 1,
+              22, 8
+            ]
+            // "circle-stroke-color": "#2600FF",
+            // "circle-stroke-width": [
+            //   "interpolate", ["linear"], ["zoom"],
+            //   9, 1.5,
+            //   17, 6
+            // ],
+            // "circle-stroke-opacity": 0.1
+          }
+        });
+
+
 
         setData();
       });
