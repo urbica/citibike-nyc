@@ -25,6 +25,6 @@ services:
       - POSTGRES_USER=postgres
     volumes:
       - ./data:/data
+      - ./scripts:/scripts
       - ./db:/var/lib/postgresql/data
-      - ./aggregate_trips.sql:/aggregate_trips.sql
-      - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+      - ./scripts/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql

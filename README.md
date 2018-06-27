@@ -2,7 +2,7 @@
 
 Mapbox GL JS feature state usage example.
 
-![Screenshot](https://raw.githubusercontent.com/stepankuzmin/mapbox-gl-js-feature-state/master/screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/urbica/citibike-nyc/master/screenshot.png)
 
 ## Prerequisites
 
@@ -12,8 +12,8 @@ Mapbox GL JS feature state usage example.
 ## Step 1. Get the source code
 
 ```shell
-git clone https://github.com/stepankuzmin/mapbox-gl-js-feature-state.git
-cd mapbox-gl-js-feature-state
+git clone https://github.com/urbica/citibike-nyc.git
+cd citibike-nyc
 ```
 
 ## Step 2. Start services
@@ -24,23 +24,17 @@ docker-compose up -d
 
 ## Step 3. Get trip data
 
-Get Citi Bike trip data
+Get Citi Bike trip data and unzip it into the `./data` folder
 
 ```shell
 curl https://s3.amazonaws.com/tripdata/201805-citibike-tripdata.csv.zip -o ./data/tripdata.zip
 unzip ./data/tripdata.zip -d ./data
 ```
 
-Upload trips into database
+Insert trip data in the database and aggregate trips by hour
 
 ```shell
-docker-compose exec db psql -d db -U postgres -c "copy trips from '/data/201805-citibike-tripdata.csv' delimiter ',' csv header"
-```
-
-...and aggregate them by hour
-
-```shell
-docker-compose exec db psql -d db -U postgres -f /aggregate_trips.sql
+docker-compose exec db psql -d db -U postgres -f /scripts/aggregate_trips.sql
 ```
 
 ## Step 4. Review your data
