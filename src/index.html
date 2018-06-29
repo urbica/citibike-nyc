@@ -23,16 +23,18 @@
 
     .slider-container {
       position: absolute;
-      right: 0;
-      bottom: 0;
+      top:0;
       left: 0;
       display: flex;
       justify-content: space-between;
       margin: auto;
-      width: 500px;
+      width: 320px;
       padding: 10px;
-      background: white;
+      background-color: rgba(0, 0, 0, .4);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.20);
+      font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
       text-align: center;
+      color: #fff;
     }
 
     #slider {
@@ -45,8 +47,8 @@
   <div id='map'></div>
   <div class="slider-container">
     <input type="date" id="dateSelector" value="2018-05-06">
-    <input type="range" min="1" max="24" value="20" step="1" id="timeSelector">
-    <span id="timeValue">20:00</span>
+    <input type="range" min="1" max="24" value="1" step="1" id="timeSelector">
+    <span id="timeValue">01:00</span>
   </div>
 
   <script>
@@ -54,9 +56,10 @@
     const map = window.map = new mapboxgl.Map({
       container: 'map',
       zoom: 12,
-      center: [-74, 40.73],
+      center: [-73.9774, 40.7391],
       style: 'mapbox://styles/mapbox/dark-v9',
-      hash: true
+      hash: true,
+      minZoom: 11.5
     });
 
     let stationsGeoJSON;
@@ -117,6 +120,7 @@
           "source": 'stations',
           "paint": {
             'circle-opacity': 1,
+            "circle-blur": 1,
             "circle-color": [
               "step",
               ["feature-state", "trips_count"],
@@ -126,27 +130,13 @@
               "#FF94A6", 20,
               "#C399FF",
             ],
-            "circle-blur":[
-              "interpolate", ["linear"], ["zoom"],
-              9, 0.5,
-              13, 1.35,
-              22, 0
-            ],
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              9, 5.5,
-              22, 15
+              11, 7,
+              22, 16
             ]
-            // "circle-stroke-color": "#fff",
-            // "circle-stroke-width": [
-            //   "interpolate", ["linear"], ["zoom"],
-            //   9, 2,
-            //   17, 10
-            // ],
-            // "circle-stroke-opacity": 0.15
           }
         });
-
         map.addLayer({
           "id": "stations",
           "type": "circle",
@@ -162,29 +152,16 @@
               "#FF94A6", 20,
               "#C399FF",
             ],
-
-            // "circle-blur":[
-            //   "interpolate", ["linear"], ["zoom"],
-            //   9, 0.5,
-            //   13, 1.5,
-            //   22, 0
-            // ],
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              9, 1,
-              22, 3
-            ]
-            // "circle-stroke-color": "#2600FF",
-            // "circle-stroke-width": [
-            //   "interpolate", ["linear"], ["zoom"],
-            //   9, 1.5,
-            //   17, 6
-            // ],
-            // "circle-stroke-opacity": 0.1
+              11, 1,
+              22, 4
+            ],
+             "circle-stroke-color": "#ffffFF",
+             "circle-stroke-width": 1,
+            "circle-stroke-opacity": 0.2
           }
         });
-
-
         setData();
       });
     });
