@@ -111,55 +111,65 @@
         stationsGeoJSON = stations;
 
         map.addSource('stations', {
-          "type": "geojson",
-          "data": stations
+          'type': 'geojson',
+          'data': stations
         });
+
         map.addLayer({
-          "id": "stations1",
-          "type": "circle",
-          "source": 'stations',
-          "paint": {
-            'circle-opacity': 1,
-            "circle-blur": 1,
-            "circle-color": [
-              "step",
-              ["feature-state", "trips_count"],
-              "#429EFF", 2,
-              "#80FF9E", 5,
-              "#F0FF3D", 10,
-              "#FF94A6", 20,
-              "#C399FF",
+          'id': 'stations1',
+          'type': 'circle',
+          'source': 'stations',
+          'paint': {
+            'circle-opacity': [
+              'case',
+              ['to-boolean', ['feature-state', 'trips_count']], 1,
+              0
             ],
-            "circle-radius": [
-              "interpolate", ["linear"], ["zoom"],
+            'circle-blur': 1,
+            'circle-color': [
+              'step',
+              ['feature-state', 'trips_count'],
+              '#429EFF', 2,
+              '#80FF9E', 5,
+              '#F0FF3D', 10,
+              '#FF94A6', 20,
+              '#C399FF',
+            ],
+            'circle-radius': [
+              'interpolate', ['linear'], ['zoom'],
               11, 7,
               22, 16
             ]
           }
         });
+
         map.addLayer({
-          "id": "stations",
-          "type": "circle",
-          "source": 'stations',
-          "paint": {
-            'circle-opacity': 1,
-            "circle-color": [
-              "step",
-              ["feature-state", "trips_count"],
-              "#429EFF", 2,
-              "#80FF9E", 5,
-              "#F0FF3D", 10,
-              "#FF94A6", 20,
-              "#C399FF",
+          'id': 'stations',
+          'type': 'circle',
+          'source': 'stations',
+          'paint': {
+            'circle-opacity': [
+              'case',
+              ['to-boolean', ['feature-state', 'trips_count']], 1,
+              0
             ],
-            "circle-radius": [
-              "interpolate", ["linear"], ["zoom"],
+            'circle-color': [
+              'step',
+              ['feature-state', 'trips_count'],
+              '#429EFF', 2,
+              '#80FF9E', 5,
+              '#F0FF3D', 10,
+              '#FF94A6', 20,
+              '#C399FF',
+            ],
+            'circle-radius': [
+              'interpolate', ['linear'], ['zoom'],
               11, 1,
               22, 4
             ],
-            "circle-stroke-color": "#ffffFF",
-            "circle-stroke-width": 0.5,
-            "circle-stroke-opacity": 0.2
+            'circle-stroke-color': '#ffffFF',
+            'circle-stroke-width': 0.5,
+            'circle-stroke-opacity': 0.2
           }
         });
         setData();
