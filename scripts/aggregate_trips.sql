@@ -12,7 +12,6 @@ create table trips (
   "end station latitude" numeric,
   "end station longitude" numeric,
   "bikeid" varchar,
-  "name_localizedValue0" varchar,
   "usertype" varchar,
   "birth year" varchar,
   "gender" varchar
